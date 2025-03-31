@@ -8,7 +8,11 @@
 <body>
     <h1>To-Do List</h1>
     <h3>20201593 송은수</h3>
-    <ul id="todo-list"></ul>
+    <h2>미완료된 할 일</h2>
+    <ul id="incomplete-todo-list"></ul>
+    <hr>
+    <h2>완료된 할 일</h2>
+    <ul id="complete-todo-list"></ul>
     <form id="todo-form">
         <input type="text" id="title" placeholder="Title" required>
         <input type="text" id="description" placeholder="Description" required>
@@ -19,14 +23,16 @@
         async function fetchTodos() {
             const response = await fetch('/todos');
             const todos = await response.json();
-            const todoList = document.getElementById('todo-list');
-            todoList.innerHTML = '';
+            const incompleteTodoList = document.getElementById('incomplete-todo-list');
+            const completeTodoList = document.getElementById('complete-todo-list');
+            incompleteTodoList.innerHTML = '';
+            completeTodoList.innerHTML = '';
             todos.forEach(todo => {
                 const div = document.createElement('div');
                 div.style.display = 'flex';
                 div.style.gap = '4px';
                 const li = document.createElement('li'); 
-                li.textContent = `${todo.title}: ${todo.description} (Completed: ${todo.completed})`;
+                li.textContent = `${todo.title}: ${todo.description}`;
                 const editButton = document.createElement('button'); 
                 editButton.id = todo.id;
                 const deleteButton = document.createElement('button'); 
@@ -40,7 +46,11 @@
                 div.appendChild(editButton);
                 div.appendChild(toggleButton);
                 div.appendChild(deleteButton);
-                todoList.appendChild(div);
+                if (todo.completed) {
+                    completeTodoList.appendChild(div);
+                } else {
+                    incompleteTodoList.appendChild(div);
+                }
             });
         }
 
@@ -62,17 +72,17 @@
 
         fetchTodos();
 
-        document.getElementById('todo-list').addEventListener('click', async (event) => {
+        document.addEventListener('click', async (event) => {
             if (event.target.tagName === 'BUTTON') {
                 const id = event.target.id;
                 if (event.target.textContent === 'Edit') {
                     const li = event.target.previousSibling;
                     const title = li.textContent.split(':')[0];
-                    const description = li.textContent.split(':')[1].split('(')[0].trim();
+                    const description = li.textContent.split(':')[1].trim();
                     const newDescription = prompt('새로운 설명을 입력하세요:', description);
                     
                     if (newDescription !== null) {
-                        const completed = li.textContent.includes('true');
+                        const completed = event.target.parentElement.parentElement.id === 'complete-todo-list';
                         const response = await fetch(`/todos/${id}`, {
                             method: 'PUT',
                             headers: {
@@ -87,15 +97,15 @@
                 } else if (event.target.textContent === 'Done' || event.target.textContent === 'Not Done') {
                     const li = event.target.previousSibling.previousSibling;
                     const title = li.textContent.split(':')[0];
-                    const description = li.textContent.split(':')[1].split('(')[0].trim();
-                    const completed = !li.textContent.includes('true');
+                    const description = li.textContent.split(':')[1].trim();
+                    const completed = event.target.textContent === 'Done';
                     
                     const response = await fetch(`/todos/${id}`, {
                         method: 'PUT',
                         headers: {
                             'Content-Type': 'application/json'
                         },
-                        body: JSON.stringify({ id, title, description, completed })
+                        body: JSON.stringify({ id, title, description, completed: !completed })
                     });
                     if (response.ok) {
                         fetchTodos();
