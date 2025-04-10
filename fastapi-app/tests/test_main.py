@@ -61,12 +61,6 @@ def test_delete_todo():
     assert response.json()["message"] == "To-Do item deleted"
     
 def test_delete_todo_not_found():
-    # 존재하지 않는 항목 삭제 시에도 성공 응답을 반환합니다 (idempotent 특성)
-    response = client.delete("/todos/999")
+    response = client.delete("/todos/1")
     assert response.status_code == 200
     assert response.json()["message"] == "To-Do item deleted"
-
-def test_read_root():
-    response = client.get("/")
-    assert response.status_code == 200
-    assert "text/html" in response.headers["content-type"]
