@@ -21,106 +21,139 @@
         
     </form>
     <script>
+        // Todo 항목 생성 함수
+        function createTodoElement(todo) {
+            const div = document.createElement('div');
+            div.style.display = 'flex';
+            div.style.gap = '4px';
+
+            const li = document.createElement('li');
+            li.textContent = `${todo.title}: ${todo.description}`;
+
+            const buttons = {
+                edit: createButton('Edit', todo.id),
+                toggle: createButton(todo.completed ? 'Done' : 'Not Done', todo.id),
+                delete: createButton('delete', todo.id)
+            };
+
+            div.appendChild(li);
+            div.appendChild(buttons.edit);
+            div.appendChild(buttons.toggle);
+            div.appendChild(buttons.delete);
+
+            return div;
+        }
+
+        // 버튼 생성 헬퍼 함수
+        function createButton(text, id) {
+            const button = document.createElement('button');
+            button.textContent = text;
+            button.id = id;
+            return button;
+        }
+
+        // Todo 목록 가져오기
         async function fetchTodos() {
             const response = await fetch('/todos');
             const todos = await response.json();
             const incompleteTodoList = document.getElementById('incomplete-todo-list');
             const completeTodoList = document.getElementById('complete-todo-list');
+            
             incompleteTodoList.innerHTML = '';
             completeTodoList.innerHTML = '';
+
             todos.forEach(todo => {
-                const div = document.createElement('div');
-                div.style.display = 'flex';
-                div.style.gap = '4px';
-                const li = document.createElement('li'); 
-                li.textContent = `${todo.title}: ${todo.description}`;
-                const editButton = document.createElement('button'); 
-                editButton.id = todo.id;
-                const deleteButton = document.createElement('button'); 
-                deleteButton.id = todo.id;
-                const toggleButton = document.createElement('button');
-                toggleButton.id = todo.id;
-                editButton.textContent = 'Edit';
-                deleteButton.textContent = 'delete';
-                toggleButton.textContent = todo.completed ? 'Done' : 'Not Done';
-                div.appendChild(li);
-                div.appendChild(editButton);
-                div.appendChild(toggleButton);
-                div.appendChild(deleteButton);
+                const todoElement = createTodoElement(todo);
                 if (todo.completed) {
-                    completeTodoList.appendChild(div);
+                    completeTodoList.appendChild(todoElement);
                 } else {
-                    incompleteTodoList.appendChild(div);
+                    incompleteTodoList.appendChild(todoElement);
                 }
             });
         }
 
-        document.getElementById('todo-form').addEventListener('submit', async (event) => {
-            event.preventDefault();
-            const title = document.getElementById('title').value;
-            const description = document.getElementById('description').value;
+        // Todo 추가
+        async function addTodo(title, description) {
             const response = await fetch('/todos', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ id: Date.now(), title, description, completed: false })
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    id: Date.now(), 
+                    title, 
+                    description, 
+                    completed: false 
+                })
             });
             if (response.ok) {
                 fetchTodos();
             }
-        });
+        }
 
-        fetchTodos();
-
-        document.addEventListener('click', async (event) => {
-            if (event.target.tagName === 'BUTTON') {
-                const id = event.target.id;
-                if (event.target.textContent === 'Edit') {
-                    const li = event.target.previousSibling;
-                    const title = li.textContent.split(':')[0];
-                    const description = li.textContent.split(':')[1].trim();
-                    const newDescription = prompt('새로운 설명을 입력하세요:', description);
-                    
-                    if (newDescription !== null) {
-                        const completed = event.target.parentElement.parentElement.id === 'complete-todo-list';
-                        const response = await fetch(`/todos/${id}`, {
-                            method: 'PUT',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({ id, title, description: newDescription, completed })
-                        });
-                        if (response.ok) {
-                            fetchTodos();
-                        }
-                    }
-                } else if (event.target.textContent === 'Done' || event.target.textContent === 'Not Done') {
-                    const li = event.target.previousSibling.previousSibling;
-                    const title = li.textContent.split(':')[0];
-                    const description = li.textContent.split(':')[1].trim();
-                    const completed = event.target.textContent === 'Done';
-                    
-                    const response = await fetch(`/todos/${id}`, {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ id, title, description, completed: !completed })
-                    });
-                    if (response.ok) {
-                        fetchTodos();
-                    }
-                } else if (event.target.textContent === 'delete') {
-                    const response = await fetch(`/todos/${id}`, {
-                        method: 'DELETE'
-                    });
-                    if (response.ok) {
-                        fetchTodos();
-                    }
-                }
+        // Todo 수정
+        async function updateTodo(id, title, description, completed) {
+            const response = await fetch(`/todos/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id, title, description, completed })
+            });
+            if (response.ok) {
+                fetchTodos();
             }
-        });
+        }
+
+        // Todo 삭제
+        async function deleteTodo(id) {
+            const response = await fetch(`/todos/${id}`, {
+                method: 'DELETE'
+            });
+            if (response.ok) {
+                fetchTodos();
+            }
+        }
+
+        // 이벤트 리스너 설정
+        function setupEventListeners() {
+            // Todo 추가 폼
+            document.getElementById('todo-form').addEventListener('submit', async (event) => {
+                event.preventDefault();
+                const title = document.getElementById('title').value;
+                const description = document.getElementById('description').value;
+                await addTodo(title, description);
+            });
+
+            // 버튼 클릭 이벤트
+            document.addEventListener('click', async (event) => {
+                if (event.target.tagName !== 'BUTTON') return;
+
+                const id = event.target.id;
+                const li = event.target.previousSibling;
+                const [title, description] = li.textContent.split(':').map(s => s.trim());
+
+                switch (event.target.textContent) {
+                    case 'Edit':
+                        const newDescription = prompt('새로운 설명을 입력하세요:', description);
+                        if (newDescription !== null) {
+                            const completed = event.target.parentElement.parentElement.id === 'complete-todo-list';
+                            await updateTodo(id, title, newDescription, completed);
+                        }
+                        break;
+
+                    case 'Done':
+                    case 'Not Done':
+                        const isCompleted = event.target.textContent === 'Done';
+                        await updateTodo(id, title, description, !isCompleted);
+                        break;
+
+                    case 'delete':
+                        await deleteTodo(id);
+                        break;
+                }
+            });
+        }
+
+        // 초기화
+        setupEventListeners();
+        fetchTodos();
     </script>
 </body>
 </html>
