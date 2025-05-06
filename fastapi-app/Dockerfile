@@ -15,11 +15,9 @@ COPY static/ ./static/
 COPY templates/ ./templates/
 COPY tests/ ./tests/
 
-# 의존성 설치
-RUN pip install --no-cache-dir -r requirements.txt
-
-# 파일 소유권 변경
-RUN chown -R appuser:appuser /app
+# 의존성 설치 및 파일 소유권 변경
+RUN pip install --no-cache-dir -r requirements.txt && \
+    chown -R appuser:appuser /app
 
 # 비특권 사용자로 전환
 USER appuser
