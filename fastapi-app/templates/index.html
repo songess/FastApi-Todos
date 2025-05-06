@@ -121,23 +121,26 @@
                 const [title, description] = li.textContent.split(':').map(s => s.trim());
 
                 switch (event.target.textContent) {
-                    case 'Edit':
+                    case 'Edit': {
                         const newDescription = prompt('새로운 설명을 입력하세요:', description);
                         if (newDescription !== null) {
                             const completed = event.target.parentElement.parentElement.id === 'complete-todo-list';
                             await updateTodo(id, title, newDescription, completed);
                         }
                         break;
+                    }
 
                     case 'Done':
-                    case 'Not Done':
+                    case 'Not Done': {
                         const isCompleted = event.target.textContent === 'Done';
                         await updateTodo(id, title, description, !isCompleted);
                         break;
+                    }
 
-                    case 'delete':
+                    case 'delete': {
                         await deleteTodo(id);
                         break;
+                    }
                 }
             });
         }
