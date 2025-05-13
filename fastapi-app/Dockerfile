@@ -11,7 +11,6 @@ WORKDIR /app
 COPY requirements.txt .
 COPY main.py .
 COPY todo.json .
-COPY static/ ./static/
 COPY templates/ ./templates/
 COPY tests/ ./tests/
 
