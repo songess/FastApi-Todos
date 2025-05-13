@@ -183,8 +183,8 @@
     <form id="todo-form">
         <input type="text" id="title" placeholder="Title" required>
         <input type="text" id="description" placeholder="Description" required>
+        <input type="datetime-local" id="deadline" required>
         <button type="submit">Add To-Do</button>
-        
     </form>
     <script>
         function createTodoElement(todo) {
@@ -195,7 +195,8 @@
             div.style.justifyContent = 'center';
 
             const li = document.createElement('li');
-            li.textContent = `${todo.title}: ${todo.description}`;
+            const deadline = new Date(todo.deadline).toLocaleString();
+            li.textContent = `${todo.title}: ${todo.description} (마감일: ${deadline})`;
 
             const buttons = {
                 edit: createButton('Edit', todo.id),
@@ -223,57 +224,85 @@
         }
 
         async function fetchTodos() {
-            const response = await fetch('/todos');
-            const todos = await response.json();
-            const incompleteTodoList = document.getElementById('incomplete-todo-list');
-            const completeTodoList = document.getElementById('complete-todo-list');
-            
-            incompleteTodoList.innerHTML = '';
-            completeTodoList.innerHTML = '';
-
-            todos.forEach(todo => {
-                const todoElement = createTodoElement(todo);
-                if (todo.completed) {
-                    completeTodoList.appendChild(todoElement);
-                } else {
-                    incompleteTodoList.appendChild(todoElement);
+            try {
+                const response = await fetch('/todos');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
                 }
-            });
-        }
+                const todos = await response.json();
+                const incompleteTodoList = document.getElementById('incomplete-todo-list');
+                const completeTodoList = document.getElementById('complete-todo-list');
+                
+                incompleteTodoList.innerHTML = '';
+                completeTodoList.innerHTML = '';
 
-        async function addTodo(title, description) {
-            const response = await fetch('/todos', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    id: Date.now(), 
-                    title, 
-                    description, 
-                    completed: false 
-                })
-            });
-            if (response.ok) {
-                fetchTodos();
+                todos.forEach(todo => {
+                    const todoElement = createTodoElement(todo);
+                    if (todo.completed) {
+                        completeTodoList.appendChild(todoElement);
+                    } else {
+                        incompleteTodoList.appendChild(todoElement);
+                    }
+                });
+            } catch (error) {
+                console.error('Error fetching todos:', error);
+                alert('할 일 목록을 불러오는데 실패했습니다.');
             }
         }
 
-        async function updateTodo(id, title, description, completed) {
-            const response = await fetch(`/todos/${id}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id, title, description, completed })
-            });
-            if (response.ok) {
-                fetchTodos();
+        async function addTodo(title, description, deadline) {
+            try {
+                const response = await fetch('/todos', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        id: Date.now(), 
+                        title, 
+                        description, 
+                        deadline,
+                        completed: false 
+                    })
+                });
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                await fetchTodos();
+                document.getElementById('todo-form').reset();
+            } catch (error) {
+                console.error('Error adding todo:', error);
+                alert('할 일을 추가하는데 실패했습니다.');
+            }
+        }
+
+        async function updateTodo(id, title, description, deadline, completed) {
+            try {
+                const response = await fetch(`/todos/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id, title, description, deadline, completed })
+                });
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                await fetchTodos();
+            } catch (error) {
+                console.error('Error updating todo:', error);
+                alert('할 일을 수정하는데 실패했습니다.');
             }
         }
 
         async function deleteTodo(id) {
-            const response = await fetch(`/todos/${id}`, {
-                method: 'DELETE'
-            });
-            if (response.ok) {
-                fetchTodos();
+            try {
+                const response = await fetch(`/todos/${id}`, {
+                    method: 'DELETE'
+                });
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                await fetchTodos();
+            } catch (error) {
+                console.error('Error deleting todo:', error);
+                alert('할 일을 삭제하는데 실패했습니다.');
             }
         }
 
@@ -282,22 +311,28 @@
                 event.preventDefault();
                 const title = document.getElementById('title').value;
                 const description = document.getElementById('description').value;
-                await addTodo(title, description);
+                const deadline = document.getElementById('deadline').value;
+                await addTodo(title, description, deadline);
             });
 
             document.addEventListener('click', async (event) => {
                 if (event.target.tagName !== 'BUTTON') return;
 
                 const id = event.target.id;
-                const li = event.target.previousSibling;
-                const [title, description] = li.textContent.split(':').map(s => s.trim());
+                const todoDiv = event.target.closest('div');
+                const li = todoDiv.querySelector('li');
+                const todoText = li.textContent;
+                const [title, rest] = todoText.split(':').map(s => s.trim());
+                const [description, deadlineText] = rest.split('(마감일:').map(s => s.trim());
+                const deadline = deadlineText ? deadlineText.replace(')', '') : '';
 
                 switch (event.target.textContent) {
                     case 'Edit': {
                         const newDescription = prompt('새로운 설명을 입력하세요:', description);
-                        if (newDescription !== null) {
-                            const completed = event.target.parentElement.parentElement.id === 'complete-todo-list';
-                            await updateTodo(id, title, newDescription, completed);
+                        const newDeadline = prompt('새로운 마감일을 입력하세요 (YYYY-MM-DD HH:mm):', deadline);
+                        if (newDescription !== null && newDeadline !== null) {
+                            const completed = todoDiv.closest('ul').id === 'complete-todo-list';
+                            await updateTodo(id, title, newDescription, newDeadline, completed);
                         }
                         break;
                     }
@@ -305,12 +340,14 @@
                     case 'Done':
                     case 'Not Done': {
                         const isCompleted = event.target.textContent === 'Done';
-                        await updateTodo(id, title, description, !isCompleted);
+                        await updateTodo(id, title, description, deadline, !isCompleted);
                         break;
                     }
 
                     case 'delete': {
-                        await deleteTodo(id);
+                        if (confirm('정말로 이 할 일을 삭제하시겠습니까?')) {
+                            await deleteTodo(id);
+                        }
                         break;
                     }
                 }
