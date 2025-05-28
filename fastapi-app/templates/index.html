@@ -6,168 +6,240 @@
     <title>To-Do List</title>
     <style>
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Pretendard', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
-            padding: 20px;
-            background-color: #f8f9fa;
-            color: #333;
-            max-width: 800px;
+            padding: 32px;
+            background: linear-gradient(120deg, #f8fafc 0%, #e3e8ee 100%);
+            color: #222;
+            max-width: 1200px;
             margin: 0 auto;
         }
 
         h1, h2, h3 {
             text-align: center;
             color: #2c3e50;
+            font-weight: 700;
         }
 
         h1 {
             margin-top: 20px;
-            font-size: 2.5em;
+            font-size: 2.2em;
             margin-bottom: 10px;
+            letter-spacing: -1px;
         }
 
         h2 {
-            margin-top: 30px;
-            font-size: 1.8em;
+            font-size: 1.4em;
             color: #34495e;
+            letter-spacing: -0.5px;
+            border-bottom: 2px solid #e3e8ee;
+            padding-bottom: 8px;
+            margin-bottom: 18px;
         }
 
         h3 {
             color: #7f8c8d;
             margin-bottom: 30px;
+            font-size: 1.1em;
+            font-weight: 400;
+        }
+
+        .todo-container {
+            display: flex;
+            gap: 32px;
+            justify-content: space-between;
+            margin: 16px auto;
+            max-width: 1200px;
+        }
+
+        .todo-section {
+            flex: 1;
+            min-width: 0;
+            background: rgba(255,255,255,0.7);
+            border-radius: 18px;
+            box-shadow: 0 2px 16px 0 rgba(60,60,100,0.07);
+            padding: 24px 18px 32px 18px;
         }
 
         form {
-            display: grid;
+            display: none;
             grid-template-columns: 1fr;
-            gap: 12px;
-            max-width: 500px;
-            margin: 20px auto;
-            padding: 25px;
-            background-color: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            gap: 14px;
+            max-width: 480px;
+            margin: 24px auto 32px auto;
+            padding: 28px 24px 20px 24px;
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 4px 24px rgba(80,120,200,0.10);
         }
 
-        input[type="text"] {
-            padding: 12px;
-            border: 2px solid #e0e0e0;
+        input[type="text"], input[type="datetime-local"] {
+            padding: 13px 14px;
+            border: 1.5px solid #d1d5db;
             border-radius: 8px;
             font-size: 15px;
             width: 100%;
             box-sizing: border-box;
-            transition: border-color 0.3s ease;
+            transition: border-color 0.3s;
+            background: #f9fafb;
         }
 
-        input[type="text"]:focus {
+        input[type="text"]:focus, input[type="datetime-local"]:focus {
             outline: none;
-            border-color: #3498db;
+            border-color: #5b9df9;
+            background: #fff;
         }
 
-        button {
-            padding: 10px 20px;
-            background-color: #3498db;
-            color: white;
+        form button[type="submit"] {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin: 10px auto 0 auto;
+            padding: 13px 32px;
+            background: linear-gradient(90deg, #4f8cff 0%, #5b9df9 100%);
+            color: #fff;
             border: none;
-            border-radius: 6px;
+            border-radius: 24px;
             cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 14px;
-            font-weight: 500;
+            font-size: 17px;
+            font-weight: 700;
+            box-shadow: 0 2px 8px rgba(80,120,200,0.10);
+            letter-spacing: -0.5px;
+            transition: background 0.2s, transform 0.13s, box-shadow 0.2s;
+        }
+        form button[type="submit"]:hover {
+            background: linear-gradient(90deg, #5b9df9 0%, #4f8cff 100%);
+            color: #fff;
+            transform: translateY(-2px) scale(1.03);
+            box-shadow: 0 8px 24px rgba(80,120,200,0.18);
         }
 
-        button:hover {
-            background-color: #2980b9;
-            transform: translateY(-1px);
+        .add-todo-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin: 24px auto 0 auto;
+            padding: 15px 38px;
+            background: linear-gradient(90deg, #4f8cff 0%, #5b9df9 100%);
+            color: #fff;
+            border: none;
+            border-radius: 32px;
+            cursor: pointer;
+            font-size: 19px;
+            font-weight: 700;
+            box-shadow: 0 4px 16px rgba(80,120,200,0.13);
+            letter-spacing: -0.5px;
+            transition: background 0.2s, transform 0.13s, box-shadow 0.2s;
+        }
+        .add-todo-btn:hover {
+            background: linear-gradient(90deg, #5b9df9 0%, #4f8cff 100%);
+            color: #fff;
+            transform: translateY(-3px) scale(1.04);
+            box-shadow: 0 8px 24px rgba(80,120,200,0.18);
         }
 
         ul {
             list-style-type: none;
             padding: 0;
-            display: grid;
-            gap: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
             max-width: 700px;
             margin: 0 auto;
         }
 
         li {
-            background-color: white;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 12px 15px;
-            display: grid;
-            grid-template-columns: 1fr auto auto auto;
-            gap: 8px;
-            align-items: center;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            transition: transform 0.2s ease;
-        }
-
-        li:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
-        }
-
-        li > div {
+            background: #fff;
+            border: 1.5px solid #e3e8ee;
+            border-radius: 14px;
+            padding: 18px 20px;
             display: flex;
-            gap: 8px;
+            flex-direction: row;
             align-items: center;
+            box-shadow: 0 2px 12px rgba(60,60,100,0.06);
+            transition: box-shadow 0.2s, transform 0.2s;
+            min-width: 0;
+        }
+        li:hover {
+            box-shadow: 0 6px 24px rgba(80,120,200,0.13);
+            transform: translateY(-2px) scale(1.01);
         }
 
+        .todo-content {
+            flex: 1;
+            min-width: 0;
+            word-break: break-all;
+            font-size: 15.5px;
+            color: #222b;
+            font-weight: 500;
+            letter-spacing: -0.2px;
+        }
+        .todo-buttons {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-left: 18px;
+        }
         li button {
-            padding: 6px 12px;
-            font-size: 13px;
+            padding: 7px 18px;
+            font-size: 14px;
             width: auto;
-            min-width: 60px;
+            min-width: 64px;
+            border-radius: 20px;
+            border: none;
+            font-weight: 500;
+            box-shadow: 0 1px 4px rgba(80,120,200,0.07);
+            transition: background 0.2s, color 0.2s, transform 0.1s;
         }
-
         li button.edit {
-            background-color: #3498db;
+            background: #5b9df9;
+            color: #fff;
         }
-
         li button.edit:hover {
-            background-color: #2980b9;
+            background: #3b7be0;
         }
-
         li button.toggle {
-            background-color: #2ecc71;
+            background: #2ecc71;
+            color: #fff;
         }
-
         li button.toggle:hover {
-            background-color: #27ae60;
+            background: #27ae60;
         }
-
         li button.delete {
-            background-color: #e74c3c;
+            background: #e74c3c;
+            color: #fff;
         }
-
         li button.delete:hover {
-            background-color: #c0392b;
+            background: #c0392b;
         }
 
-        hr {
-            margin: 25px 0;
-            border: 0;
-            border-top: 2px solid #ecf0f1;
-        }
-
-        @media (max-width: 768px) {
-            body {
-                padding: 15px;
+        @media (max-width: 900px) {
+            .todo-container {
+                flex-direction: column;
+                gap: 24px;
             }
-
-            li {
-                grid-template-columns: 1fr;
-                text-align: center;
+            .todo-section {
+                padding: 18px 6vw 24px 6vw;
+            }
+        }
+        @media (max-width: 600px) {
+            body {
+                padding: 8px;
+            }
+            .todo-section {
+                padding: 10px 2vw 16px 2vw;
+            }
+            ul {
                 gap: 10px;
             }
-
-            li > div {
-                justify-content: center;
+            li {
+                padding: 10px 8px;
             }
-
-            li button {
-                width: 100%;
+            .todo-buttons {
+                gap: 4px;
+                margin-left: 6px;
             }
         }
     </style>
@@ -175,45 +247,54 @@
 <body>
     <h1>To-Do List</h1>
     <h3>20201593 송은수</h3>
-    <h2>미완료된 할 일</h2>
-    <ul id="incomplete-todo-list"></ul>
-    <hr>
-    <h2>완료된 할 일</h2>
-    <ul id="complete-todo-list"></ul>
+    <button class="add-todo-btn" id="toggle-form-btn"><span style="font-size:1.3em; font-weight:900;">＋</span> 할 일 추가하기</button>
     <form id="todo-form">
         <input type="text" id="title" placeholder="Title" required>
         <input type="text" id="description" placeholder="Description" required>
         <input type="datetime-local" id="deadline" required>
         <button type="submit">Add To-Do</button>
     </form>
+    <div class="todo-container">
+        <div class="todo-section">
+            <h2>미완료된 할 일</h2>
+            <ul id="incomplete-todo-list"></ul>
+        </div>
+        <div class="todo-section">
+            <h2>완료된 할 일</h2>
+            <ul id="complete-todo-list"></ul>
+        </div>
+    </div>
     <script>
         function createTodoElement(todo) {
-            const div = document.createElement('div');
-            div.style.display = 'flex';
-            div.style.gap = '4px';
-            div.style.alignItems = 'center';
-            div.style.justifyContent = 'center';
-
             const li = document.createElement('li');
-            const deadline = new Date(todo.deadline).toLocaleString();
-            li.textContent = `${todo.title}: ${todo.description} (마감일: ${deadline})`;
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'todo-content';
+            let deadlineText = '';
+            if (todo.deadline && !isNaN(new Date(todo.deadline).getTime())) {
+                deadlineText = new Date(todo.deadline).toLocaleString();
+            } else {
+                deadlineText = '마감일 없음';
+            }
+            contentDiv.textContent = `${todo.title}: ${todo.description} (마감일: ${deadlineText})`;
+            li.setAttribute('data-deadline', todo.deadline || '');
 
+            const btnDiv = document.createElement('div');
+            btnDiv.className = 'todo-buttons';
             const buttons = {
                 edit: createButton('Edit', todo.id),
-                toggle: createButton(todo.completed ? 'Done' : 'Not Done', todo.id),
+                toggle: createButton(todo.completed ? '☑ 취소' : '☐ 완료', todo.id),
                 delete: createButton('delete', todo.id)
             };
-
             buttons.edit.classList.add('edit');
             buttons.delete.classList.add('delete');
             buttons.toggle.classList.add('toggle');
+            btnDiv.appendChild(buttons.edit);
+            btnDiv.appendChild(buttons.toggle);
+            btnDiv.appendChild(buttons.delete);
 
-            div.appendChild(li);
-            div.appendChild(buttons.edit);
-            div.appendChild(buttons.toggle);
-            div.appendChild(buttons.delete);
-
-            return div;
+            li.appendChild(contentDiv);
+            li.appendChild(btnDiv);
+            return li;
         }
 
         function createButton(text, id) {
@@ -307,7 +388,14 @@
         }
 
         function setupEventListeners() {
-            document.getElementById('todo-form').addEventListener('submit', async (event) => {
+            const form = document.getElementById('todo-form');
+            const toggleBtn = document.getElementById('toggle-form-btn');
+
+            toggleBtn.addEventListener('click', () => {
+                form.style.display = form.style.display === 'none' ? 'grid' : 'none';
+            });
+
+            form.addEventListener('submit', async (event) => {
                 event.preventDefault();
                 const title = document.getElementById('title').value;
                 const description = document.getElementById('description').value;
@@ -319,9 +407,9 @@
                 if (event.target.tagName !== 'BUTTON') return;
 
                 const id = event.target.id;
-                const todoDiv = event.target.closest('div');
-                const li = todoDiv.querySelector('li');
-                const todoText = li.textContent;
+                const li = event.target.closest('li');
+                const contentDiv = li.querySelector('.todo-content');
+                const todoText = contentDiv.textContent;
                 const [title, rest] = todoText.split(':').map(s => s.trim());
                 const [description, deadlineText] = rest.split('(마감일:').map(s => s.trim());
                 const deadline = deadlineText ? deadlineText.replace(')', '') : '';
@@ -331,16 +419,17 @@
                         const newDescription = prompt('새로운 설명을 입력하세요:', description);
                         const newDeadline = prompt('새로운 마감일을 입력하세요 (YYYY-MM-DD HH:mm):', deadline);
                         if (newDescription !== null && newDeadline !== null) {
-                            const completed = todoDiv.closest('ul').id === 'complete-todo-list';
+                            const completed = li.closest('ul').id === 'complete-todo-list';
                             await updateTodo(id, title, newDescription, newDeadline, completed);
                         }
                         break;
                     }
 
-                    case 'Done':
-                    case 'Not Done': {
-                        const isCompleted = event.target.textContent === 'Done';
-                        await updateTodo(id, title, description, deadline, !isCompleted);
+                    case '☑ 취소':
+                    case '☐ 완료': {
+                        let realDeadline = deadline === '마감일 없음' ? li.getAttribute('data-deadline') || '' : deadline;
+                        const isCompleted = event.target.textContent === '☑ 취소';
+                        await updateTodo(id, title, description, realDeadline, !isCompleted);
                         break;
                     }
 
