@@ -54,7 +54,7 @@ def test_update_todo_not_found():
     assert response.status_code == 404
 
 def test_delete_todo():
-    todo = TodoItem(id=1, title="Test", description="Test description", completed=False)
+    todo = TodoItem(id=1, title="Test", description="Test description", deadline="2024-03-20T12:00", completed=False)
     save_todos([todo.dict()])
     response = client.delete("/todos/1")
     assert response.status_code == 200
