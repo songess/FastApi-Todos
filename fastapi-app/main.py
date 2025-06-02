@@ -19,7 +19,11 @@ Instrumentator().instrument(app).expose(app, endpoint="/metrics")
 loki_logs_handler = LokiQueueHandler(
     Queue(-1),
     url=getenv("LOKI_ENDPOINT"),
-    tags={"application": "fastapi"},
+    tags={
+        "application": "fastapi",
+        "container": "fastapi-app",
+        "service": "todo-app"
+    },
     version="1",
 )
 
