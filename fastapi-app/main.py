@@ -18,11 +18,9 @@ Instrumentator().instrument(app).expose(app, endpoint="/metrics")
 
 loki_logs_handler = LokiQueueHandler(
     Queue(-1),
-    url=getenv("LOKI_ENDPOINT"),
+    url=os.getenv("LOKI_ENDPOINT"),
     tags={
         "application": "fastapi",
-        "container": "fastapi-app",
-        "service": "todo-app"
     },
     version="1",
 )
@@ -34,6 +32,7 @@ custom_logger.setLevel(logging.INFO)
 # Add Loki handler (assuming `loki_logs_handler` is correctly configured)
 custom_logger.addHandler(loki_logs_handler)
 
+@app.middleware("http")
 async def log_requests(request: Request, call_next):
     start_time = time.time()
     response = await call_next(request)
