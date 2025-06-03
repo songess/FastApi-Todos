@@ -30,9 +30,9 @@
     {
         "id": 1748935855702,
         "title": "\uadf8\uac70\uc57c",
-        "description": "\uc88b\uc544",
+        "description": "",
         "deadline": "2025-06-19T16:30",
-        "completed": false
+        "completed": true
     },
     {
         "id": 1748935927517,
@@ -47,5 +47,19 @@
         "description": "\ucd94\uac00\ud558\ub294\uc911",
         "deadline": "2025-06-20T16:32",
         "completed": false
+    },
+    {
+        "id": 1748937081397,
+        "title": "\ud560\uc77c",
+        "description": "\ucd94\uac00\ud569\ub2c8\ub2e4",
+        "deadline": "2025-06-15T16:51",
+        "completed": false
+    },
+    {
+        "id": 1748937090414,
+        "title": "\ud560\uc77c",
+        "description": "",
+        "deadline": "2025-06-03T21:51",
+        "completed": true
     }
 ]
