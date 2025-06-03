@@ -14,17 +14,10 @@
         "completed": false
     },
     {
-        "id": 1748434535633,
-        "title": "\ubc25\uba39\uae30",
-        "description": "\uc5f4\uc2ec\ud788 (\ub9c8\uac10\uc77c",
-        "deadline": "",
-        "completed": true
-    },
-    {
         "id": 1748434550600,
         "title": "ui \uac1c\uc120",
-        "description": "css \uc218\uc815 (\ub9c8\uac10\uc77c",
-        "deadline": "",
+        "description": "",
+        "deadline": "2000-01-23 21:23",
         "completed": true
     }
 ]

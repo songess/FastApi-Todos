@@ -408,16 +408,14 @@
 
                 const id = event.target.id;
                 const li = event.target.closest('li');
-                const contentDiv = li.querySelector('.todo-content');
-                const todoText = contentDiv.textContent;
-                const [title, rest] = todoText.split(':').map(s => s.trim());
-                const [description, deadlineText] = rest.split('(마감일:').map(s => s.trim());
-                const deadline = deadlineText ? deadlineText.replace(')', '') : '';
+                const title = li.querySelector('.todo-content').textContent.split(':')[0].trim();
+                const description = ""; // 필요하다면 li에 data-description 속성 추가해서 사용
+                const realDeadline = li.getAttribute('data-deadline') || '';
 
                 switch (event.target.textContent) {
                     case 'Edit': {
                         const newDescription = prompt('새로운 설명을 입력하세요:', description);
-                        const newDeadline = prompt('새로운 마감일을 입력하세요 (YYYY-MM-DD HH:mm):', deadline);
+                        const newDeadline = prompt('새로운 마감일을 입력하세요 (YYYY-MM-DD HH:mm):', realDeadline);
                         if (newDescription !== null && newDeadline !== null) {
                             const completed = li.closest('ul').id === 'complete-todo-list';
                             await updateTodo(id, title, newDescription, newDeadline, completed);
@@ -427,7 +425,6 @@
 
                     case '☑ 취소':
                     case '☐ 완료': {
-                        let realDeadline = deadline === '마감일 없음' ? li.getAttribute('data-deadline') || '' : deadline;
                         const isCompleted = event.target.textContent === '☑ 취소';
                         await updateTodo(id, title, description, realDeadline, !isCompleted);
                         break;
